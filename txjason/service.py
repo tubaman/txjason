@@ -61,11 +61,11 @@ Example:
     if __name__ == '__main__':
 
         # Adds the method login to the service as a 'login'.
-        chat_service.add(login, types=[basestring, basestring, int])
+        chat_service.add(login, types=[str, str, int])
 
         # Adds the method receive_message to the service as a 'recv_msg'.
         chat_service.add(receive_message, name='recv_msg',
-                         types={"msg": basestring, "id": int})
+                         types={"msg": str, "id": int})
 
         # Adds the method send_message as a 'send_msg' to the service.
         chat_service.add(send_message, 'send_msg')
@@ -189,7 +189,7 @@ class JSONRPCService(object):
                 rdata = json.loads(jsondata)
             except ValueError:
                 raise ParseError
-        except ParseError, e:
+        except ParseError as e:
             defer.returnValue(self._get_err(e))
             return
 
@@ -218,12 +218,12 @@ class JSONRPCService(object):
                     request_ = self._get_default_vals()
                     try:
                         self._fill_request(request_, rdata_)
-                    except InvalidRequestError, e:
+                    except InvalidRequestError as e:
                         err = self._get_err(e, request_['id'])
                         if err:
                             responds.append(err)
                         continue
-                    except JSONRPCError, e:
+                    except JSONRPCError as e:
                         err = self._get_err(e, request_['id'])
                         if err:
                             responds.append(err)
@@ -236,7 +236,7 @@ class JSONRPCService(object):
                         # TODO: We should use a deferred list so requests
                         #       are processed in parallel
                         respond = yield self._handle_request(request_)
-                    except JSONRPCError, e:
+                    except JSONRPCError as e:
                         respond = self._get_err(e,
                                                 request_['id'],
                                                 request_['jsonrpc'])
@@ -255,9 +255,9 @@ class JSONRPCService(object):
             else:
                 # empty dict, list or wrong type
                 raise InvalidRequestError
-        except InvalidRequestError, e:
+        except InvalidRequestError as e:
             defer.returnValue(self._get_err(e, request['id']))
-        except JSONRPCError, e:
+        except JSONRPCError as e:
             defer.returnValue(self._get_err(e,
                                             request['id'],
                                             request['jsonrpc']))
@@ -362,7 +362,7 @@ class JSONRPCService(object):
         InvalidRequestError will be raised if the id value has invalid type.
         """
         if 'id' in rdata:
-            if isinstance(rdata['id'], basestring) or \
+            if isinstance(rdata['id'], str) or \
                     isinstance(rdata['id'], int) or \
                     isinstance(rdata['id'], long) or \
                     isinstance(rdata['id'], float) or \
@@ -384,7 +384,7 @@ class JSONRPCService(object):
         does not exist.
         """
         if 'method' in rdata:
-            if not isinstance(rdata['method'], basestring):
+            if not isinstance(rdata['method'], str):
                 raise InvalidRequestError
         else:
             raise InvalidRequestError
